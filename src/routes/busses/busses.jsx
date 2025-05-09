@@ -7,7 +7,8 @@ const Busses = () => {
   const [buses, setBuses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [viewMode, setViewMode] = useState("all"); // 'all' or 'today'
+  const [viewMode, setViewMode] = useState("all"); // 'all', 'today', or 'date'
+  const [selectedDate, setSelectedDate] = useState("");
 
   useEffect(() => {
     const fetchBuses = async () => {
@@ -23,14 +24,30 @@ const Busses = () => {
     fetchBuses();
   }, []);
 
+  const filterBusesByDate = (busesArray, date) => {
+    if (!date) return busesArray;
+    const filterDate = new Date(date).toISOString().split("T")[0];
+    return busesArray.filter(bus => {
+      const busDate = new Date(bus.busDepartureDate).toISOString().split("T")[0];
+      return busDate === filterDate;
+    });
+  };
+
   const todayDate = new Date().toISOString().split("T")[0];
+  const todayBuses = filterBusesByDate(buses, todayDate);
 
-  const todayBuses = buses.filter((bus) => {
-    const departureDate = new Date(bus.busDepartureDate).toISOString().split("T")[0];
-    return departureDate === todayDate;
-  });
+  const getBusesToDisplay = () => {
+    switch(viewMode) {
+      case "today":
+        return todayBuses;
+      case "date":
+        return filterBusesByDate(buses, selectedDate);
+      default:
+        return buses;
+    }
+  };
 
-  const busesToDisplay = viewMode === "today" ? todayBuses : buses;
+  const busesToDisplay = getBusesToDisplay();
 
   if (loading) return <div>Loading buses...</div>;
   if (error) return <div className="text-red-500">{error}</div>;
@@ -39,8 +56,8 @@ const Busses = () => {
     <div className="flex flex-col px-4 pb-10 gap-y-6">
       <h1 className="text-3xl font-bold text-gray-800">Buses Management</h1>
 
-      {/* Clickable Cards */}
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+      {/* Filter Controls */}
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
         <div
           onClick={() => setViewMode("all")}
           className={`cursor-pointer p-6 rounded-xl shadow transition ${
@@ -63,12 +80,34 @@ const Busses = () => {
           <h2 className="text-xl font-semibold">Today's Buses</h2>
           <p className="mt-2 text-3xl font-bold">{todayBuses.length}</p>
         </div>
+        <div
+          className={`p-6 rounded-xl shadow transition ${
+            viewMode === "date"
+              ? "bg-red-600 text-white"
+              : "bg-red-100 border-l-4 border-red-500 text-red-900"
+          }`}
+        >
+          <h2 className="text-xl font-semibold mb-2">Select Date</h2>
+          <input
+            type="date"
+            value={selectedDate}
+            onChange={(e) => {
+              setSelectedDate(e.target.value);
+              setViewMode("date");
+            }}
+            className="w-full p-2 border rounded bg-transparent"
+          />
+        </div>
       </div>
 
       {/* Buses Table */}
       <div className="mt-6 card">
         <div className="card-header">
-          <p className="card-title">{viewMode === "today" ? "Today's Buses" : "All Buses"} List</p>
+          <p className="card-title">
+            {viewMode === "today" && "Today's Buses"}
+            {viewMode === "date" && `Buses on ${new Date(selectedDate).toLocaleDateString()}`}
+            {viewMode === "all" && "All Buses"} List
+          </p>
         </div>
         <div className="p-0 card-body">
           <div className="relative h-[500px] w-full overflow-auto rounded-none [scrollbar-width:_thin]">

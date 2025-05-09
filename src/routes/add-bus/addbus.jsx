@@ -20,6 +20,8 @@ const Addbus = () => {
     busName: '',
     busPlateNo: '',
     busAmenities: [],
+    busOwnership: '',
+    busType: '',
     busCitiesAndTimes: [{ cityName: '', arrivalTime: '' }],
     busTicketPrice: '',
     busDepartureDate: '',
@@ -76,6 +78,8 @@ const Addbus = () => {
             busName: '',
             busPlateNo: '',
             busAmenities: [],
+            busOwnership: '',
+            busType: '',
             busCitiesAndTimes: [{ cityName: '', arrivalTime: '' }],
             busTicketPrice: '',
             busDepartureDate: '',
@@ -97,6 +101,8 @@ const Addbus = () => {
     if (!formData.busPlateNo.trim()) errors.busPlateNo = 'License plate is required';
     if (!formData.busTicketPrice) errors.busTicketPrice = 'Ticket price is required';
     if (!formData.busDepartureDate) errors.busDepartureDate = 'Departure date is required';
+    if (!formData.busOwnership) errors.busOwnership = 'Ownership is required';
+    if (!formData.busType) errors.busType = 'Bus type is required';
     return errors;
   };
 
@@ -157,6 +163,7 @@ const Addbus = () => {
 
           {/* Price and Departure Section */}
           <div className="bg-white p-6 rounded-lg shadow-md">
+            <h3 className="text-xl font-semibold mb-4">Price & Departure</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block mb-2">Ticket Price (Rs.) *</label>
@@ -181,6 +188,60 @@ const Addbus = () => {
                 {errors.busDepartureDate && <span className="text-red-500 text-sm">{errors.busDepartureDate}</span>}
               </div>
             </div>
+          </div>
+
+          {/* Ownership Field */}
+          <div className="bg-white p-6 rounded-lg shadow-md">
+            <h3 className="text-xl font-semibold mb-4">Bus Ownership</h3>
+            <div className="grid grid-cols-2 md:grid-cols-2 gap-4">
+              <label className="flex items-center">
+                <input
+                  type="radio"
+                  className="mr-2 w-4 h-4 accent-red-500"
+                  name="ownership"
+                  value="CTB"
+                  checked={formData.busOwnership === 'CTB'}
+                  onChange={(e) => setFormData({ ...formData, busOwnership: e.target.value })}
+                />
+                CTB
+              </label>
+
+              <label className="flex items-center">
+                <input
+                  type="radio"
+                  className="mr-2 w-4 h-4 accent-red-500"
+                  name="ownership"
+                  value="Private"
+                  checked={formData.busOwnership === 'Private'}
+                  onChange={(e) => setFormData({ ...formData, busOwnership: e.target.value })}
+                />
+                Private
+              </label>
+            </div>
+            {errors.busOwnership && (
+              <span className="text-red-500 text-sm mt-2 block">{errors.busOwnership}</span>
+            )}
+          </div>
+
+          {/* Bus Type Section */}
+          <div className="bg-white p-6 rounded-lg shadow-md">
+            <h3 className="text-xl font-semibold mb-4">Bus Type </h3>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {['AC Delux', 'Tourist AC Delux', 'Air Suspension', 'Semi Luxury'].map((type) => (
+                <label key={type} className="flex items-center">
+                  <input
+                    type="radio"
+                    className="mr-2 w-4 h-4 accent-red-500"
+                    name="busType"
+                    value={type}
+                    checked={formData.busType === type}
+                    onChange={(e) => setFormData({ ...formData, busType: e.target.value })}
+                  />
+                  {type}
+                </label>
+              ))}
+            </div>
+            {errors.busType && <span className="text-red-500 text-sm mt-2 block">{errors.busType}</span>}
           </div>
 
           {/* Amenities Section */}
@@ -265,7 +326,7 @@ const Addbus = () => {
                   <option
                     key={seat}
                     value={seat}
-                    //disabled={formData.seats.find(s => s.seatNumber === seat)?.availability === 'booked'}
+                  //disabled={formData.seats.find(s => s.seatNumber === seat)?.availability === 'booked'}
                   >
                     {seat}
                   </option>
